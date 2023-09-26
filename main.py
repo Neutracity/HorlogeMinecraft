@@ -2,13 +2,14 @@ from tkinter import *
 from time import *
 root = Tk()
 root.title("Horloge Minecraft")
-size=(596,596)
+size=(596,560)
 root.geometry(f'{size[0]}x{size[1]}')
 cnv=Canvas(root, width=size[0], height=size[1], bg="ivory")
 cnv.pack()
 lamp_on = PhotoImage(file="redstone_lamp_on.png")
 lamp_off = PhotoImage(file="redstone_lamp.png")
-
+root.resizable(False, False)
+# root.overrideredirect(1) # pas une très bonne idée
 class Horloge:
     def __init__(self, heure=00, minutes=00, secondes=00, alarme_heure=00,alarme=False,):
         self.heure=heure
@@ -77,7 +78,12 @@ class Horloge:
 
     def verifier_alarme(self):
         if self.heure == self.alarme_heure and self.minutes == self.alarme_minutes and self.alarme:
-            print("ALARME")
+            if self.secondes %2 != 0 :
+                border(False)
+            else:
+                border(True)
+        else:
+            border(True)
 
     def str_alarme(self):
         stri = ''
@@ -157,6 +163,15 @@ class Pattern:
                     ecran.light_up((i+coordstart[0],j+coordstart[1]))
                 else:
                     ecran.light_down((i+coordstart[0],j+coordstart[1]))
+
+def border(up=True):
+    for y in range(2,13):
+        for x in range(2,len(ecran.grid[0])-2):
+            if not 2<x<len(ecran.grid[0])-3 or not 2<y<12:
+                if up :
+                    ecran.light_up((y,x))
+                else :
+                    ecran.light_down((y,x))
 
 ecran = Gridobject(Lampe)
 letemps= Horloge()
@@ -246,11 +261,7 @@ p9 = Pattern([
     [0,1,1,1,0],
 ])
 
-for y in range(2,13):
-    for x in range(2,len(ecran.grid[0])-2):
-        if not 2<x<len(ecran.grid[0])-3 or not 2<y<12:
-            ecran.light_up((y,x))
-
+border(True)
 for i in range(8343):
     letemps.tic()
 print(letemps.print_time())
@@ -259,7 +270,7 @@ print(str(letemps))
 print(letemps.str_alarme())
 boutton1 = Button(root,text="Quitter",command=root.destroy)
 boutton1.place(x=size[0]-100, y=500)
-boutton_alarm = Button(root,text="Alarme On",command=letemps.switch_alarme)
+boutton_alarm = Button(root,text="Alarme OFF",command=letemps.switch_alarme)
 boutton_alarm.place(x=50, y=350)
 boutton_alarm_h_plus = Button(root,text="+",command=letemps.inc_heure_alarme)
 boutton_alarm_h_plus.place(x=200, y=275)
