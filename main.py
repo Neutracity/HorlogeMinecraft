@@ -1,17 +1,22 @@
 from tkinter import *
-from time import *
+import time
 root = Tk()
 root.title("Horloge Minecraft")
-size=(596,560)
+size=(596,564-3*16)
 root.geometry(f'{size[0]}x{size[1]}')
 cnv=Canvas(root, width=size[0], height=size[1], bg="ivory")
 cnv.pack()
 lamp_on = PhotoImage(file="redstone_lamp_on.png")
 lamp_off = PhotoImage(file="redstone_lamp.png")
+quartz = PhotoImage(file="quartz_block_side.png")
+iron = PhotoImage(file="iron_block.png")
+netherite = PhotoImage(file="netherite_block.png")
+oak = PhotoImage(file="oak_planks.png")
 root.resizable(False, False)
+t = time.localtime()
 # root.overrideredirect(1) # pas une très bonne idée
 class Horloge:
-    def __init__(self, heure=00, minutes=00, secondes=00, alarme_heure=00,alarme=False,):
+    def __init__(self, heure=int(time.strftime("%H", t)), minutes=int(time.strftime("%M", t)), secondes=int(time.strftime("%S", t)), alarme_heure=00,alarme=False,):
         self.heure=heure
         self.minutes=minutes
         self.secondes=secondes
@@ -69,9 +74,9 @@ class Horloge:
     def switch_alarme(self):
         self.alarme = bool(1-int(self.alarme))
         if self.alarme :
-            boutton_alarm.config(text="Alarme ON")
+            boutton_alarm.config(text="Alarme ON",relief="sunken")
         else:
-            boutton_alarm.config(text="Alarme OFF")
+            boutton_alarm.config(text="Alarme OFF",relief="raised")
 
     def print_time(self):
         return f'{self.heure}:{self.minutes}:{self.secondes}'
@@ -262,25 +267,31 @@ p9 = Pattern([
 ])
 
 border(True)
-for i in range(8343):
-    letemps.tic()
+# for i in range(8343):
+#     letemps.tic()
 print(letemps.print_time())
 ecran.to_hour(str(letemps))
 print(str(letemps))
 print(letemps.str_alarme())
 boutton1 = Button(root,text="Quitter",command=root.destroy)
-boutton1.place(x=size[0]-100, y=500)
-boutton_alarm = Button(root,text="Alarme OFF",command=letemps.switch_alarme)
+boutton1.place(x=size[0]-100, y=350)
+boutton_alarm = Button(root,text="Alarme OFF",command=letemps.switch_alarme,relief="raised")
 boutton_alarm.place(x=50, y=350)
-boutton_alarm_h_plus = Button(root,text="+",command=letemps.inc_heure_alarme)
+boutton_alarm_h_plus = Button(root,text="+",command=letemps.inc_heure_alarme,image=oak,bd=0)
 boutton_alarm_h_plus.place(x=200, y=275)
-boutton_alarm_m_plus = Button(root,text="+",command=letemps.inc_minute_alarme)
-boutton_alarm_m_plus.place(x=375, y=275)
-boutton_alarm_h_moins = Button(root,text="-",command=letemps.dec_heure_alarme)
+boutton_alarm_m_plus = Button(root,text="+",command=letemps.inc_minute_alarme,image=oak,bd=0)
+boutton_alarm_m_plus.place(x=360, y=275)
+boutton_alarm_h_moins = Button(root,text="-",command=letemps.dec_heure_alarme,image=oak,bd=0)
 boutton_alarm_h_moins.place(x=200, y=425)
-boutton_alarm_m_moins = Button(root,text="-",command=letemps.dec_minute_alarme)
-boutton_alarm_m_moins.place(x=375, y=425)
+boutton_alarm_m_moins = Button(root,text="-",command=letemps.dec_minute_alarme,image=oak,bd=0)
+boutton_alarm_m_moins.place(x=360, y=425)
 ecran.to_hour(str(letemps.str_alarme()),20,9)
+# [[object(False,(i*16+10,j*16+10)) for i in range(size[0]//16)] for j in range((size[1]//16))]
+for y in range(size[1]//16):
+        for x in range(size[0]//16):
+            if not 0<x<size[0]//16-1 or not 0<y<size[1]//16-1:
+                cnv.create_image((x*16+10,y*16+10), image=netherite)
+
 def frame():
     letemps.tic()
     letemps.verifier_alarme()
