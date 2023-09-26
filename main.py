@@ -1,5 +1,5 @@
 from tkinter import *
-
+from time import *
 root = Tk()
 root.title("Horloge Minecraft")
 size=(596,596)
@@ -10,16 +10,30 @@ lamp_on = PhotoImage(file="redstone_lamp_on.png")
 lamp_off = PhotoImage(file="redstone_lamp.png")
 
 class Horloge:
-    def __init__(self, heure=00, minutes=00, secondes=00, alarme_heure=00,alarme=00,):
+    def __init__(self, heure=00, minutes=00, secondes=00, alarme_heure=00,alarme=False,):
         self.heure=heure
         self.minutes=minutes
         self.secondes=secondes
+        self.init_alarme()
     
     def init_alarme(self,alarme_heure=00,alarme_minutes=00,alarme_secondes=00,alarme_activee='activee'):
         self.alarme_heure=alarme_heure
         self.alarme_minutes=alarme_minutes
         self.alarme_secondes=alarme_secondes
         self.alarme = False
+
+    def inc_heure_alarme(self):
+        self.alarme_heure+=1
+        
+
+    def inc_minute_alarme(self):
+        self.alarme_minutes+=1
+
+    def dec_heure_alarme(self):
+        self.alarme_heure-=1
+
+    def dec_minute_alarme(self):
+        self.alarme_minutes-=1
 
     def tic(self):
         if self.secondes < 59:
@@ -49,7 +63,7 @@ class Horloge:
 
     def verifier_alarme(self):
         if self.heure == self.alarme_heure and self.minutes == self.alarme_minutes :
-            pass
+            print("ALARME")
 
     def __str__(self):
         """Renvoie le temps sous forme string avec des 0 pour les chiffres : 'hhmmss'"""
@@ -88,9 +102,9 @@ class Lampe:
         cnv.itemconfig(self.img,image=lamp_off)
 
 
-class Gridlampe:
-    def __init__(self,coordstart=(0,0)):
-        self.grid = [[Lampe(False,(i*16+10,j*16+10)) for i in range(size[0]//16)] for j in range((size[1]//16)-5)]
+class Gridobject:
+    def __init__(self,object = Lampe):
+        self.grid = [[object(False,(i*16+10,j*16+10)) for i in range(size[0]//16)] for j in range((size[1]//16))]
     
     def light_up(self,coord=(0,0)):
         self.grid[coord[0]][coord[1]].up()
@@ -101,6 +115,7 @@ class Gridlampe:
     def to_hour(self,temps="000000"):
         convert = {'0':p0,'1':p1,'2':p2,'3':p3,'4':p4,'5':p5,'6':p6,'7':p7,'8':p8,'9':p9,':':pp}
         self.hauteur = 5
+
         convert[temps[0]].apply_pattern((self.hauteur,4))
         convert[temps[1]].apply_pattern((self.hauteur,8))
         convert[temps[2]].apply_pattern((self.hauteur,14))
@@ -109,6 +124,7 @@ class Gridlampe:
         convert[temps[5]].apply_pattern((self.hauteur,28))
         pp.apply_pattern((self.hauteur,12))
         pp.apply_pattern((self.hauteur,22))
+    
 
 
 class Pattern:
@@ -123,7 +139,7 @@ class Pattern:
                 else:
                     ecran.light_down((i+coordstart[0],j+coordstart[1]))
 
-ecran = Gridlampe()
+ecran = Gridobject(Lampe)
 letemps= Horloge()
 
 pp = Pattern([
@@ -221,9 +237,22 @@ for i in range(8343):
 print(letemps.print_time())
 ecran.to_hour(str(letemps))
 print(str(letemps))
+boutton1 = Button(root,text="Quitter",command=root.destroy)
+boutton1.place(x=size[0]-100, y=500)
+boutton_alarm = Button(root,text="Alarme On",command=letemps.activer_alarme())
+boutton_alarm.place(x=50, y=500)
+boutton_alarm_h_plus = Button(root,text="Alarme Heure +",command=letemps.inc_heure_alarme())
+boutton_alarm_h_plus.place(x=125, y=500)
+boutton_alarm_m_plus = Button(root,text="Alarme Min +",command=letemps.inc_minute_alarme())
+boutton_alarm_m_plus.place(x=200, y=500)
+boutton_alarm_h_moins = Button(root,text="Alarme Heure -",command=letemps.dec_heure_alarme())
+boutton_alarm_h_moins.place(x=275, y=500)
+boutton_alarm_m_moins = Button(root,text="Alarme Min -",command=letemps.dec_minute_alarme())
+boutton_alarm_m_moins.place(x=350, y=500)
 
 def frame():
     letemps.tic()
+    letemps.verifier_alarme()
     ecran.to_hour(str(letemps))
     if letemps.secondes%2 ==0:
         pr.apply_pattern((5,22))
