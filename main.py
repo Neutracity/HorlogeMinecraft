@@ -29,7 +29,7 @@ class Horloge:
         self.alarme = False
 
     def inc_heure_alarme(self):
-        if self.alarme_heure >= 24:
+        if self.alarme_heure >= 23:
             self.alarme_heure = 0
             self.alarme_minutes = 59
         else :
@@ -37,9 +37,12 @@ class Horloge:
         ecran.to_hour(str(letemps.str_alarme()),20,9)
 
     def inc_minute_alarme(self):
-        if self.alarme_minutes >= 60:
+        if self.alarme_minutes >= 59:
             self.alarme_minutes = 0
-            self.alarme_heure +=1
+            if self.alarme_heure == 23:
+                self.alarme_heure = 0
+            else:
+                self.alarme_heure +=1
         else :
             self.alarme_minutes+=1
         ecran.to_hour(str(letemps.str_alarme()),20,9)
@@ -52,6 +55,12 @@ class Horloge:
     def dec_minute_alarme(self):
         if self.alarme_minutes > 0:
             self.alarme_minutes-=1
+        else: 
+            self.alarme_minutes = 59
+            if self.alarme_heure == 0:
+                self.alarme_heure = 23
+            else : 
+                self.alarme_heure -= 1
         ecran.to_hour(str(letemps.str_alarme()),20,9)
 
     def tic(self):
