@@ -23,17 +23,30 @@ class Horloge:
         self.alarme = False
 
     def inc_heure_alarme(self):
-        self.alarme_heure+=1
-        
+        if self.alarme_heure >= 24:
+            self.alarme_heure = 0
+            self.alarme_minutes = 59
+        else :
+            self.alarme_heure+=1
+        ecran.to_hour(str(letemps.str_alarme()),20,9)
 
     def inc_minute_alarme(self):
-        self.alarme_minutes+=1
+        if self.alarme_minutes >= 60:
+            self.alarme_minutes = 0
+            self.alarme_heure +=1
+        else :
+            self.alarme_minutes+=1
+        ecran.to_hour(str(letemps.str_alarme()),20,9)
 
     def dec_heure_alarme(self):
-        self.alarme_heure-=1
+        if self.alarme_heure > 0:
+            self.alarme_heure-=1
+        ecran.to_hour(str(letemps.str_alarme()),20,9)
 
     def dec_minute_alarme(self):
-        self.alarme_minutes-=1
+        if self.alarme_minutes > 0:
+            self.alarme_minutes-=1
+        ecran.to_hour(str(letemps.str_alarme()),20,9)
 
     def tic(self):
         if self.secondes < 59:
@@ -52,18 +65,31 @@ class Horloge:
             self.heure=0
             self.minutes=0
 
-    def activer_alarme(self):
-        self.is_alarme_on = True
-
-    def desactiver_alarme(self):
-        self.is_alarme_on = False
+    def switch_alarme(self):
+        self.alarme = bool(1-int(self.alarme))
+        if self.alarme :
+            boutton_alarm.config(text="Alarme ON")
+        else:
+            boutton_alarm.config(text="Alarme OFF")
 
     def print_time(self):
         return f'{self.heure}:{self.minutes}:{self.secondes}'
 
     def verifier_alarme(self):
-        if self.heure == self.alarme_heure and self.minutes == self.alarme_minutes :
+        if self.heure == self.alarme_heure and self.minutes == self.alarme_minutes and self.alarme:
             print("ALARME")
+
+    def str_alarme(self):
+        stri = ''
+        if self.alarme_heure < 10:
+            stri += f'0{self.alarme_heure}'
+        else:
+            stri += str(self.alarme_heure)
+        if self.alarme_minutes < 10:
+            stri += f'0{self.alarme_minutes}'
+        else:
+            stri += str(self.alarme_minutes)
+        return stri
 
     def __str__(self):
         """Renvoie le temps sous forme string avec des 0 pour les chiffres : 'hhmmss'"""
@@ -112,18 +138,11 @@ class Gridobject:
     def light_down(self,coord=(0,0)):
         self.grid[coord[0]][coord[1]].down()
 
-    def to_hour(self,temps="000000"):
+    def to_hour(self,temps="000000",hauteur=5,decalagex=4):
         convert = {'0':p0,'1':p1,'2':p2,'3':p3,'4':p4,'5':p5,'6':p6,'7':p7,'8':p8,'9':p9,':':pp}
-        self.hauteur = 5
-
-        convert[temps[0]].apply_pattern((self.hauteur,4))
-        convert[temps[1]].apply_pattern((self.hauteur,8))
-        convert[temps[2]].apply_pattern((self.hauteur,14))
-        convert[temps[3]].apply_pattern((self.hauteur,18))
-        convert[temps[4]].apply_pattern((self.hauteur,24))
-        convert[temps[5]].apply_pattern((self.hauteur,28))
-        pp.apply_pattern((self.hauteur,12))
-        pp.apply_pattern((self.hauteur,22))
+        for i in range(0,len(temps),2):
+            convert[temps[i]].apply_pattern((hauteur,i*5+decalagex))
+            convert[temps[i+1]].apply_pattern((hauteur,i*5+4+decalagex))
     
 
 
@@ -237,19 +256,20 @@ for i in range(8343):
 print(letemps.print_time())
 ecran.to_hour(str(letemps))
 print(str(letemps))
+print(letemps.str_alarme())
 boutton1 = Button(root,text="Quitter",command=root.destroy)
 boutton1.place(x=size[0]-100, y=500)
-boutton_alarm = Button(root,text="Alarme On",command=letemps.activer_alarme())
-boutton_alarm.place(x=50, y=500)
-boutton_alarm_h_plus = Button(root,text="Alarme Heure +",command=letemps.inc_heure_alarme())
-boutton_alarm_h_plus.place(x=125, y=500)
-boutton_alarm_m_plus = Button(root,text="Alarme Min +",command=letemps.inc_minute_alarme())
-boutton_alarm_m_plus.place(x=200, y=500)
-boutton_alarm_h_moins = Button(root,text="Alarme Heure -",command=letemps.dec_heure_alarme())
-boutton_alarm_h_moins.place(x=275, y=500)
-boutton_alarm_m_moins = Button(root,text="Alarme Min -",command=letemps.dec_minute_alarme())
-boutton_alarm_m_moins.place(x=350, y=500)
-
+boutton_alarm = Button(root,text="Alarme On",command=letemps.switch_alarme)
+boutton_alarm.place(x=50, y=350)
+boutton_alarm_h_plus = Button(root,text="+",command=letemps.inc_heure_alarme)
+boutton_alarm_h_plus.place(x=200, y=275)
+boutton_alarm_m_plus = Button(root,text="+",command=letemps.inc_minute_alarme)
+boutton_alarm_m_plus.place(x=375, y=275)
+boutton_alarm_h_moins = Button(root,text="-",command=letemps.dec_heure_alarme)
+boutton_alarm_h_moins.place(x=200, y=425)
+boutton_alarm_m_moins = Button(root,text="-",command=letemps.dec_minute_alarme)
+boutton_alarm_m_moins.place(x=375, y=425)
+ecran.to_hour(str(letemps.str_alarme()),20,9)
 def frame():
     letemps.tic()
     letemps.verifier_alarme()
@@ -257,6 +277,9 @@ def frame():
     if letemps.secondes%2 ==0:
         pr.apply_pattern((5,22))
         pr.apply_pattern((5,12))
+    else:
+        pp.apply_pattern((5,22))
+        pp.apply_pattern((5,12))
     root.after(1000,frame)
 frame()
 
