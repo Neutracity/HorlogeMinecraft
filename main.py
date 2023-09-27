@@ -1,5 +1,9 @@
 from tkinter import *
 import time
+from pygame import mixer
+mixer.init()
+mixer.music.load('song.mp3')
+mixer.music.set_volume(0.2)
 root = Tk()
 root.title("Horloge Minecraft")
 size=(596,564-3*16)
@@ -50,6 +54,8 @@ class Horloge:
     def dec_heure_alarme(self):
         if self.alarme_heure > 0:
             self.alarme_heure-=1
+        else :
+            self.alarme_heure = 23
         ecran.to_hour(str(letemps.str_alarme()),20,9)
 
     def dec_minute_alarme(self):
@@ -92,11 +98,13 @@ class Horloge:
 
     def verifier_alarme(self):
         if self.heure == self.alarme_heure and self.minutes == self.alarme_minutes and self.alarme:
+            mixer.music.unpause()
             if self.secondes %2 != 0 :
                 border(False)
             else:
                 border(True)
         else:
+            mixer.music.pause()
             border(True)
 
     def str_alarme(self):
@@ -300,6 +308,9 @@ for y in range(size[1]//16):
         for x in range(size[0]//16):
             if not 0<x<size[0]//16-1 or not 0<y<size[1]//16-1:
                 cnv.create_image((x*16+10,y*16+10), image=netherite)
+
+pp.apply_pattern((20,17))
+mixer.music.play()
 
 def frame():
     letemps.tic()
