@@ -90,8 +90,11 @@ class Horloge:
         self.alarme = bool(1-int(self.alarme))
         if self.alarme :
             boutton_alarm.config(text="Alarme ON",relief="sunken")
+            mixer.music.play()
+            mixer.music.pause()
         else:
             boutton_alarm.config(text="Alarme OFF",relief="raised")
+            mixer.music.stop()
 
     def print_time(self):
         return f'{self.heure}:{self.minutes}:{self.secondes}'
